@@ -28,8 +28,7 @@ app.get('/wechat/register', (req, res) => {
       const sorted = [WECHAT_TOKEN, timestamp, nonce].sort();
 
       // 拼接并进行SHA1加密
-      const sha1 = crypto.createHash("sha1");
-      const hashcode = sha1.update(sorted.join("")).digest("hex");
+      const hashcode = crypto.SHA1(sorted.join("")).toString(crypto.enc.Hex);
 
       // 打印调试信息
       console.log(
@@ -38,7 +37,7 @@ app.get('/wechat/register', (req, res) => {
 
       // 验证通过则返回echostr，否则返回空
       if (hashcode === signature) {
-        res.send(echostr);
+        res.status(200).send(echostr);
       } else {
         res.send("");
       }
