@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登陆</title>
+    <script src="https://res2.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+</head>
+<body>
+    <script>
+
+        function objectToQueryString(obj, prefix = '') {
+            if (obj === null || typeof obj !== 'object') {
+                return encodeURIComponent(prefix) + '=' + encodeURIComponent(obj);
+            }
+            
+            const queryParts = [];
+            
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    const value = obj[key];
+                    const fullKey = prefix ? `${prefix}[${key}]` : key;
+                    
+                    if (value !== null && typeof value === 'object') {
+                        if (Array.isArray(value)) {
+                            // 处理数组
+                            value.forEach((item, index) => {
+                                const arrayKey = `${fullKey}[${index}]`;
+                                if (typeof item === 'object' && item !== null) {
+                                    queryParts.push(objectToQueryString(item, arrayKey));
+                                } else {
+                                    queryParts.push(encodeURIComponent(arrayKey) + '=' + encodeURIComponent(item));
+                                }
+                            });
+                        } else {
+                            // 处理嵌套对象
+                            queryParts.push(objectToQueryString(value, fullKey));
+                        }
+                    } else {
+                        // 处理基本类型值
+                        queryParts.push(encodeURIComponent(fullKey) + '=' + encodeURIComponent(value));
+                    }
+                }
+            }
+            return queryParts.filter(part => part.length > 0).join('&');
+        }
+
+        if(wx.miniProgram){
+
+          const userInfo = {{userInfo}}
+
+          wx.miniProgram.redirectTo({url:"/pages/callback/index?" + objectToQueryString(userInfo)})
+          wx.miniProgram.postMessage({ data: userInfo });
+        }
+    </script>
+</body>
+</html>
